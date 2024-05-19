@@ -15,12 +15,14 @@ import org.springframework.stereotype.Controller;
 public class WriteMessagesController {
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-  public WriteMessagesController() {
-    log.info("=--= Initializing WriteMessagesController =------=");
+  private final KafkaProducer producer;
+
+  public WriteMessagesController(KafkaProducer producer) {
+    this.producer = producer;
   }
 
   @Scheduled(fixedDelay = 5_000)
   public void writeMessageToKafka() {
-    log.info("The time is now {}", dateFormat.format(new Date()));
+    producer.sendMessage("jontg", "Test message with timestamp " + dateFormat.format(new Date()));
   }
 }

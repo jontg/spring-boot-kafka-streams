@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
-@SpringBootApplication(scanBasePackages = "net.ulfhedinn.demo.kafka.generator")
+@SpringBootApplication
 public class SpringBootKafkaStreamsApplication {
 
   public static void main(String[] args) {
