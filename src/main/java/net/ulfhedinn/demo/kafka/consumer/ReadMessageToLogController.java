@@ -19,6 +19,6 @@ public class ReadMessageToLogController {
   @KafkaListener(topics = "jontg", groupId = "read-message-to-logger")
   public void consumeMessageForLogger(String message) throws JsonProcessingException {
     Payload payload = mapper.readValue(message, Payload.class);
-    log.info("Received message '{}'", payload);
+//    log.info("Received message '{}'", payload);
   }
 }

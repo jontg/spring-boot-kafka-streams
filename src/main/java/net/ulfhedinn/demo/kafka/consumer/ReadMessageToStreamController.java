@@ -1,23 +1,24 @@
 package net.ulfhedinn.demo.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.ulfhedinn.demo.kafka.data.Payload;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.time.Duration;
+import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Component
 public class ReadMessageToStreamController {
+  private static final Serde<UUID> UUID_SERDE = Serdes.UUID();
   private static final Serde<String> STRING_SERDE = Serdes.String();
 
   private final ObjectMapper mapper;
@@ -27,28 +28,32 @@ public class ReadMessageToStreamController {
   }
 
   @Autowired
-  void buildPipeline(StreamsBuilder streamsBuilder) {
+  public void buildPipeline(StreamsBuilder streamsBuilder) {
     KStream<String, String> messageStream = streamsBuilder
       .stream("jontg", Consumed.with(STRING_SERDE, STRING_SERDE));
 
-    KTable<String, Long> wordCounts = messageStream
-      .mapValues((message) -> {
-        try {
-          Payload payload = mapper.readValue(message, Payload.class);
-          log.info("Mapping value {}", payload);
-          return payload.getMessage();
-        } catch (Exception e) {
-          log.warn("Unprocessable message {}", message);
-          return message;
-        }
-      })
-      .flatMapValues(value -> Arrays.asList(value.split("\\W+")))
-      .groupBy((key, word) -> word, Grouped.with(STRING_SERDE, STRING_SERDE))
+    KTable<Windowed<UUID>, Long> wordCounts = messageStream
+      .groupBy((key, message) -> {
+        Payload payload = getPayloadFromMessage(message);
+        return payload.getOrgId();
+      }, Grouped.with(UUID_SERDE, STRING_SERDE))
+      .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(30), Duration.ofMillis(500)))
       .count();
 
-    wordCounts.toStream().foreach((key, value) -> {
-      log.info("Stream consumer with key '{}' and value '{}'", key, value);
+    wordCounts.toStream().foreach((key, count) -> {
+      log.info("Stream consumer with key '{}' [{} to {}] and value '{}'",
+        key.key(),
+        key.window().startTime(),
+        key.window().endTime(),
+        count);
     });
   }
 
+  private Payload getPayloadFromMessage(String message) {
+    try {
+      return mapper.readValue(message, Payload.class);
+    } catch (JsonProcessingException e) {
+      return new Payload(new Date(), new UUID(0, 0), "Empty Message");
+    }
+  }
 }
