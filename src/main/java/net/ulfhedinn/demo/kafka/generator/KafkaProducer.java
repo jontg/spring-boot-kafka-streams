@@ -10,6 +10,7 @@ public class KafkaProducer {
 
   public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate) {
     this.kafkaTemplate = kafkaTemplate;
+    this.kafkaTemplate.setObservationEnabled(true);
   }
 
   public void sendMessage(String topic, String message) {
