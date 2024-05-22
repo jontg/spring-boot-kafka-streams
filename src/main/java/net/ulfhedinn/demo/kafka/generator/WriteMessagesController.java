@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.ulfhedinn.demo.kafka.data.Payload;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,7 +15,8 @@ import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
-@Controller
+@Component
+@Profile("producer")
 public class WriteMessagesController {
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 

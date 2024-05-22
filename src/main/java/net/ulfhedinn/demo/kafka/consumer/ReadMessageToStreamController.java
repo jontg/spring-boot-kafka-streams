@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@Profile("consumer")
 public class ReadMessageToStreamController {
   private static final Serde<UUID> UUID_SERDE = Serdes.UUID();
   private static final Serde<String> STRING_SERDE = Serdes.String();
