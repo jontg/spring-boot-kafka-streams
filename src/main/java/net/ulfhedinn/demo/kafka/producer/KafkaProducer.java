@@ -1,4 +1,4 @@
-package net.ulfhedinn.demo.kafka.generator;
+package net.ulfhedinn.demo.kafka.producer;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

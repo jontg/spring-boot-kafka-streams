@@ -1,4 +1,4 @@
-package net.ulfhedinn.demo.kafka.generator;
+package net.ulfhedinn.demo.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
